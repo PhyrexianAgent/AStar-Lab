@@ -1,33 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.VisualScripting;
 
 public class GridManager : MonoBehaviour
 {
     public static GridManager instance;
 
-    [SerializableField] private int rowCount, columnCount;
-    [SerializableField] private float cellSize;
-    [SerializableField] private bool showGrid = true, showObstacles = true;
-    [SerializableField] private string obstacleTagName = "Obstacles";
-    [SerializableField] private Color gridColor = Color.blue;
+    [SerializeField] private int rowCount, columnCount;
+    [SerializeField] private float cellSize;
+    [SerializeField] private bool showGrid = true, showObstacles = true;
+    [SerializeField] private string obstacleTagName = "Obstacles";
+    [SerializeField] private Color gridColor = Color.blue;
 
     private GameObject[] obstacles;
-    private Nodes[,] nodes;
+    private Node[,] nodes;
 
     public int GetRow(int index) => index / columnCount;
     public int GetColumn(int index) => index % columnCount;
     public int GetGridIndex(Vector3 position){
         if (!IsInBounds(position))
             return -1;
-        position -= Origin;
+        position -= Vector3.zero;
         int col = (int)(position.x / cellSize);
         int row = (int)(position.z / cellSize);
         return row * columnCount + col;
     }
     public bool IsInBounds(Vector3 position){
         float width = columnCount * cellSize, height = rowCount * cellSize;
-        return position.x >= Origin.x && position.x <= Origin.x + width && position.z >= Origin.z && position.z <= Origin.z + width;
+        return position.x >= Vector3.zero.x && position.x <= Vector3.zero.x + width && position.z >= Vector3.zero.z && position.z <= Vector3.zero.z + width;
     }
     public Vector3 GetCellCenter(int index){
         Vector3 cellPos = GetCellPosition(index);
@@ -35,12 +36,12 @@ public class GridManager : MonoBehaviour
         cellPos.y += (cellSize / 2.0f);
         return cellPos;
     }
-    public Vector3 GetCellPosition(int index) => Origin + new Vector3(GetColumn() * cellSize, 0, GetRow() * cellSize);
+    public Vector3 GetCellPosition(int index) => Vector3.zero + new Vector3(GetColumn(index) * cellSize, 0, GetRow(index) * cellSize);
 
     private void CalculateObstacles(){
         foreach(GameObject obstacle in obstacles){
-            int cellIndex = GetGridIndex(obstacle.transform.position)
-            nodes[GetColumn(index), GetRow(index)].MakeObstacle();
+            int cellIndex = GetGridIndex(obstacle.transform.position);
+            nodes[GetColumn(cellIndex), GetRow(cellIndex)].MakeObstacle();
         }
     }
     private void MakeCells(){
@@ -57,7 +58,7 @@ public class GridManager : MonoBehaviour
         Vector3 cellPos = GetCellCenter(index);
         nodes[col, row] = new Node(cellPos);
     }
-    private void GetNeighbors(Node node, ArrayList neighbors){
+    public void GetNeighbors(Node node, ArrayList neighbors){
         int index = GetGridIndex(node.position);
         int row = GetRow(index), col = GetColumn(index);
 
@@ -87,6 +88,7 @@ public class GridManager : MonoBehaviour
 
 
     void Awake(){
+        instance = this;
         obstacles = GameObject.FindGameObjectsWithTag(obstacleTagName);
         MakeCells();
         CalculateObstacles();
@@ -97,7 +99,7 @@ public class GridManager : MonoBehaviour
         Gizmos.DrawSphere(transform.position, 0.5f);
         if (showObstacles){
             foreach(GameObject obstacle in obstacles){
-                Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), cellSize);
+                Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), new Vector3(cellSize, 1, cellSize));
             }
         }
     }

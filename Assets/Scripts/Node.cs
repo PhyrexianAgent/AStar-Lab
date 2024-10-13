@@ -7,9 +7,9 @@ using System;
 public class Node : IComparable
 {
     private bool isObstacle = false;
-    public Node parent {get; private set;} = null;
+    public Node parent = null;
     public float totalCost = 1, estimatedCost;
-    private Vector3 position;
+    public Vector3 position {get; private set;}
 
     public Node(Vector3 position){
         this.position = position;

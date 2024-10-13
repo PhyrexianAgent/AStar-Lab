@@ -3,8 +3,9 @@ using System.Collections;
 public class PriorityQueue
 {
     private ArrayList nodes = new ArrayList();
-
-    public int Length() => nodes.Count;
+    public int Length {get{
+        return nodes.Count;
+    }}
     public bool Contains(object node) => nodes.Contains(node);
 
     public Node GetFirst(){
