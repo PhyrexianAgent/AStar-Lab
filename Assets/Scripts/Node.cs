@@ -8,8 +8,7 @@ public class Node : IComparable
 {
     private bool isObstacle = false;
     public Node parent {get; private set;} = null;
-    public float totalCost {get; private set;} = 1;
-    public float estimatedCost {get; private set;} = 0;
+    public float totalCost = 1, estimatedCost;
     private Vector3 position;
 
     public Node(Vector3 position){
@@ -25,5 +24,8 @@ public class Node : IComparable
         else if (estimatedCost > node.estimatedCost)
             return 1;
         return 0;
+    }
+    public void MakeObstacle(){
+        isObstacle = true;
     }
 }
