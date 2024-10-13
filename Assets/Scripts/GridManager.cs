@@ -4,15 +4,101 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    public static GridManager instance;
+
+    [SerializableField] private int rowCount, columnCount;
+    [SerializableField] private float cellSize;
+    [SerializableField] private bool showGrid = true, showObstacles = true;
+    [SerializableField] private string obstacleTagName = "Obstacles";
+    [SerializableField] private Color gridColor = Color.blue;
+
+    private GameObject[] obstacles;
+    private Nodes[,] nodes;
+
+    public int GetRow(int index) => index / columnCount;
+    public int GetColumn(int index) => index % columnCount;
+    public int GetGridIndex(Vector3 position){
+        if (!IsInBounds(position))
+            return -1;
+        position -= Origin;
+        int col = (int)(position.x / cellSize);
+        int row = (int)(position.z / cellSize);
+        return row * columnCount + col;
+    }
+    public bool IsInBounds(Vector3 position){
+        float width = columnCount * cellSize, height = rowCount * cellSize;
+        return position.x >= Origin.x && position.x <= Origin.x + width && position.z >= Origin.z && position.z <= Origin.z + width;
+    }
+    public Vector3 GetCellCenter(int index){
+        Vector3 cellPos = GetCellPosition(index);
+        cellPos.x += (cellSize / 2.0f);
+        cellPos.y += (cellSize / 2.0f);
+        return cellPos;
+    }
+    public Vector3 GetCellPosition(int index) => Origin + new Vector3(GetColumn() * cellSize, 0, GetRow() * cellSize);
+
+    private void CalculateObstacles(){
+        foreach(GameObject obstacle in obstacles){
+            int cellIndex = GetGridIndex(obstacle.transform.position)
+            nodes[GetColumn(index), GetRow(index)].MakeObstacle();
+        }
+    }
+    private void MakeCells(){
+        int index = 0;
+        nodes = new Node[columnCount, rowCount];
+        for (int row = 0; row < rowCount; row++){
+            for (int col = 0; col < columnCount; col++){
+                nodes[col, row] = new Node(GetCellCenter(index));
+                index++;
+            }
+        }
+    }
+    private void AddNode(int row, int col, int index){
+        Vector3 cellPos = GetCellCenter(index);
+        nodes[col, row] = new Node(cellPos);
+    }
+    private void GetNeighbors(Node node, ArrayList neighbors){
+        int index = GetGridIndex(node.position);
+        int row = GetRow(index), col = GetColumn(index);
+
+        AddNeighbor(row - 1, col, neighbors);
+        AddNeighbor(row + 1, col, neighbors);
+        AddNeighbor(row, col - 1, neighbors);
+        AddNeighbor(row, col + 1, neighbors);
+    }
+    private void AddNeighbor(int col, int row, ArrayList neighbors){
+        if (col > -1 && col < columnCount && row > -1 && row < rowCount && !nodes[col, row].IsObstacle()){
+            neighbors.Add(nodes[col, row]);
+        }
+    }
+    private void DebugDrawGrid(){
+        float width = columnCount * cellSize, height = rowCount * cellSize;
+        for (int i = 0; i <= rowCount; i++){
+            Vector3 startPos = transform.position + new Vector3(0.0f, 0.0f, 1.0f) * i * cellSize;
+            Vector3 endPos = startPos + new Vector3(1.0f, 0.0f, 0.0f) * width;
+            Debug.DrawLine(startPos, endPos, gridColor);
+        }
+        for (int i = 0; i <= columnCount; i++){
+            Vector3 startPos = transform.position + new Vector3(1.0f, 0.0f, 0.0f) * i * cellSize;
+            Vector3 endPos = startPos + new Vector3(0.0f, 0.0f, 1.0f) * height;
+            Debug.DrawLine(startPos, endPos, gridColor);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+
+    void Awake(){
+        obstacles = GameObject.FindGameObjectsWithTag(obstacleTagName);
+        MakeCells();
+        CalculateObstacles();
+    }
+    void OnDrawGizmos(){
+        if (showGrid)
+            DebugDrawGrid();
+        Gizmos.DrawSphere(transform.position, 0.5f);
+        if (showObstacles){
+            foreach(GameObject obstacle in obstacles){
+                Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), cellSize);
+            }
+        }
     }
 }
