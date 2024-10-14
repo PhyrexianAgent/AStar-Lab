@@ -33,7 +33,7 @@ public class GridManager : MonoBehaviour
     public Vector3 GetCellCenter(int index){
         Vector3 cellPos = GetCellPosition(index);
         cellPos.x += (cellSize / 2.0f);
-        cellPos.y += (cellSize / 2.0f);
+        cellPos.z += (cellSize / 2.0f);
         return cellPos;
     }
     public Vector3 GetCellPosition(int index) => Vector3.zero + new Vector3(GetColumn(index) * cellSize, 0, GetRow(index) * cellSize);
@@ -97,9 +97,9 @@ public class GridManager : MonoBehaviour
         if (showGrid)
             DebugDrawGrid();
         Gizmos.DrawSphere(transform.position, 0.5f);
-        if (showObstacles){
+        if (showObstacles && obstacles != null){
             foreach(GameObject obstacle in obstacles){
-                Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), new Vector3(cellSize, 1, cellSize));
+                Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), new Vector3(cellSize, 1.0f, cellSize));
             }
         }
     }
