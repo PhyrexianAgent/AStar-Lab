@@ -11,9 +11,14 @@ public class GridManager : MonoBehaviour
     [SerializeField] private float cellSize;
     [SerializeField] private bool showGrid = true, showObstacles = true;
     [SerializeField] private string obstacleTagName = "Obstacles";
+    [SerializeField] private string mudTagName = "Mud";
+    [SerializeField] private float mudWeight = 5;
+    [SerializeField] private Color mudColor = Color.green;
     [SerializeField] private Color gridColor = Color.blue;
+    [SerializeField] private Color obstacleColor = Color.grey;
 
     private GameObject[] obstacles;
+    private GameObject[] mudSpots;
     private Node[,] nodes;
 
     public int GetRow(int index) => index / columnCount;
@@ -42,6 +47,12 @@ public class GridManager : MonoBehaviour
         foreach(GameObject obstacle in obstacles){
             int cellIndex = GetGridIndex(obstacle.transform.position);
             nodes[GetColumn(cellIndex), GetRow(cellIndex)].MakeObstacle();
+        }
+    }
+    private void CalculateMudSpots(){
+        foreach(GameObject mudSpot in mudSpots){
+            int cellIndex = GetGridIndex(mudSpot.transform.position);
+            nodes[GetColumn(cellIndex), GetRow(cellIndex)].totalCost = mudWeight;
         }
     }
     private void MakeCells(){
@@ -84,22 +95,37 @@ public class GridManager : MonoBehaviour
             Debug.DrawLine(startPos, endPos, gridColor);
         }
     }
+    private void DrawObstacles(){
+        Gizmos.color = obstacleColor;
+        foreach(GameObject obstacle in obstacles){
+            Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), new Vector3(cellSize, 1.0f, cellSize));
+        }
+    }
+    private void DrawMud(){
+        Gizmos.color = mudColor;
+        foreach(GameObject mudSpot in mudSpots){
+            Gizmos.DrawCube(GetCellCenter(GetGridIndex(mudSpot.transform.position)), new Vector3(cellSize, 1.0f, cellSize));
+        }
+    }
 
 
     void Awake(){
         instance = this;
         obstacles = GameObject.FindGameObjectsWithTag(obstacleTagName);
+        mudSpots = GameObject.FindGameObjectsWithTag(mudTagName);
         MakeCells();
         CalculateObstacles();
+        CalculateMudSpots();
     }
     void OnDrawGizmos(){
         if (showGrid)
             DebugDrawGrid();
         Gizmos.DrawSphere(transform.position, 0.5f);
         if (showObstacles && obstacles != null){
-            foreach(GameObject obstacle in obstacles){
-                Gizmos.DrawCube(GetCellCenter(GetGridIndex(obstacle.transform.position)), new Vector3(cellSize, 1.0f, cellSize));
-            }
+            if (obstacles != null)
+                DrawObstacles();
+            if (mudSpots != null)
+                DrawMud();
         }
     }
 }
