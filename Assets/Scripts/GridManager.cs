@@ -61,11 +61,10 @@ public class GridManager : MonoBehaviour
     public void GetNeighbors(Node node, ArrayList neighbors){
         int index = GetGridIndex(node.position);
         int row = GetRow(index), col = GetColumn(index);
-
-        AddNeighbor(row - 1, col, neighbors);
-        AddNeighbor(row + 1, col, neighbors);
-        AddNeighbor(row, col - 1, neighbors);
-        AddNeighbor(row, col + 1, neighbors);
+        AddNeighbor(col, row - 1, neighbors);
+        AddNeighbor(col, row + 1, neighbors);
+        AddNeighbor(col - 1, row, neighbors);
+        AddNeighbor(col + 1, row, neighbors);
     }
     private void AddNeighbor(int col, int row, ArrayList neighbors){
         if (col > -1 && col < columnCount && row > -1 && row < rowCount && !nodes[col, row].IsObstacle()){

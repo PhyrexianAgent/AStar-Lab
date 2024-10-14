@@ -37,8 +37,9 @@ public class AIController : MonoBehaviour
             int index = 1;
             foreach (Node node in pathArray){
                 if (index < pathArray.Count){
-                    Node nextNode = (Node)pathArray[index++];
+                    Node nextNode = (Node)pathArray[index];
                     Debug.DrawLine(node.position, nextNode.position, pathColor);
+                    index++;
                 }
             }
         }

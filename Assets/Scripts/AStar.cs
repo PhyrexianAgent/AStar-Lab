@@ -31,13 +31,13 @@ public class AStar
 
     public static ArrayList FindPath(Node startingNode, Node endingNode){
         Node node = null;
-
+        closedList = new PriorityQueue();
         openList = new PriorityQueue();
-        openList.Add(startingNode);
         startingNode.totalCost = 0f;
+        openList.Add(startingNode);
         startingNode.estimatedCost = HeuristicEstimatedCost(startingNode, endingNode);
 
-        closedList = new PriorityQueue();
+        
 
         while (openList.Length != 0){
             node = openList.GetFirst();
